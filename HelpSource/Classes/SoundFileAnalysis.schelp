@@ -79,7 +79,7 @@ a.add(\FFTCrest, \direct, {|sig| var fft = FFT(LocalBuf(2048, 1), sig); FFT(Loca
 
 // analyze the sound
 
-x = a.analyzeFile("~/soundFileAnalysisExample.aiff".standardizePath, duration: 3, maxDataPoints: 3000, callback: "done!");
+x = a.analyzeFile("~/soundFileAnalysisExample.aiff".standardizePath, duration: 3, maxDataPoints: 3000, callback: {"done!".postln;});
 
 // look at the data
 x[\centroid].postcs;
