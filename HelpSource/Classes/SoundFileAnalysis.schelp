@@ -8,15 +8,22 @@ DESCRIPTION::
 
 CLASSMETHODS::
 
-INSTANCEMETHODS::
-
 METHOD::verbose
 
-Post what's going on.
+Post what's going on. (default == False)
 
-ARGUMENT::boolean
+ARGUMENT::Boolean
 
-gets True or False (a link::Classes/Boolean::
+gets True or False  (a link::Classes/Boolean::)
+
+
+
+INSTANCEMETHODS::
+
+METHOD::new
+
+Return a new link::Classes/SoundFileAnalysis:: Object
+
 
 METHOD::add
 
