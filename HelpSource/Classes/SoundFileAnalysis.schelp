@@ -10,6 +10,14 @@ CLASSMETHODS::
 
 INSTANCEMETHODS::
 
+METHOD::verbose
+
+Post what's going on.
+
+ARGUMENT::boolean
+
+gets True or False (a link::Classes/Boolean::
+
 METHOD::add
 
 Add a new analysis method
