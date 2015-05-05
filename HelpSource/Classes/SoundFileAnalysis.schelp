@@ -10,6 +10,82 @@ CLASSMETHODS::
 
 INSTANCEMETHODS::
 
+METHOD::add
+
+Add a new analysis method
+
+ARGUMENT::name
+
+Name for the method (a link::Classes/Symbol::)
+
+ARGUMENT::type
+
+One of currently three types:
+
+definitionlist::
+## trig
+|| Write a value on receiveing a trigger
+
+## direct
+|| Write a value on each frame
+
+## average
+|| Average all values in the file
+
+::
+
+
+ARGUMENT::ugenFunc
+
+A function that returns a UGen graph. It takes the sound signal and the soundfile object as arguments.
+
+
 EXAMPLES::
 
 
+SECTION::Tests
+CODE::
+(
+a = SoundFileAnalysis.new;
+
+a.add(\onsets, \trig, { |sig|
+	var fft = FFT(LocalBuf(512, 1), sig);
+	Onsets.kr(fft)
+});
+a.add(\fftcrest, \average, { |sig|
+	FFTCrest.kr(FFT(LocalBuf(2048, 1), sig))
+});
+
+a.add(\slope, \average, { |sig|
+	FFTSlope.kr(FFT(LocalBuf(2048, 1), sig))
+});
+a.add(\amplitude, \average, { |sig|
+	Amplitude.kr(sig)
+});
+
+a.add(\test, \trig, { |sig|
+	[Impulse.kr(2), 1, 2, 3]
+});
+
+a.add(\test2, \direct, { |sig|
+	//DC.kr([10, 20, 30])
+	Phasor.kr(0, 1, 1, inf);
+});
+
+a.add(\test3, \direct, { |sig|
+	Phasor.ar(0, [10, 1], 1, inf);
+});
+);
+
+// analyze single files
+x = a.analyzeFile(Platform.resourceDir +/+ "sounds/a11wlk01.wav", callback: { "analysis completed".postln });
+x.postcs;"";
+x[\test];
+x[\test2].cs;
+x[\test3].cs;
+x[\test].as(Array).shape
+x[\crest];
+x[\onsets];
+
+
+::
