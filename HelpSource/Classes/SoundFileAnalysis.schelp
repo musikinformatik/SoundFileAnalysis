@@ -8,35 +8,6 @@ DESCRIPTION::
 
 CLASSMETHODS::
 
-METHOD::verbose
-
-Post what's going on. (default == False)
-
-METHOD::new
-
-Return a new link::Classes/SoundFileAnalysis:: Object
-
-METHOD::initAnalysisMethods
-
-Return a function with a dictionary of basic analasys methods:
-
-METHOD::basicAnalysisMethods
-A dictionary with the tree keys: \trig, \average, \direct
-
-definitionlist::
-## trig
-|| Write a value on receiveing a trigger
-
-## average
-|| Average all values in the file
-
-
-## direct
-|| Write a value on each frame
-
-::
-
-
 INSTANCEMETHODS::
 
 METHOD::add
@@ -69,67 +40,10 @@ ARGUMENT::ugenFunc
 A function that returns a UGen graph. It takes the sound signal and the soundfile object as arguments.
 
 
-METHOD::analysisMethods
-
-Returns a dictionary of functions of currently defined methods.
-
-
-
-METHOD::analyzeFile
-
-Analyze a sound file, using the defined analysis methods. This method returns an link::Classes/Event:: with the following information:
-definitionlist::
-## ~fileName, ~path, ~fileNumChannels
-|| path and sound file information
-
-## ~analysisStart, ~analysisDuration
-|| What part of the file was analyzed
-
-## ~dataDimensions
-|| The results, each resulting from an analysis method (an link::Classes/Event::)
-
-## ~dataTable
-|| The above results ordered as a multidimensional array
-
-::
-
-
-ARGUMENT::path
-
-Path to the soundfile
-
-ARGUMENT::start
-
-Start frame index for analysis
-
-ARGUMENT::duration
-
-Analysis duration in seconds
-
-ARGUMENT::which
-
-Which methods to use (an array of names as symbols). If none is given, use all.
-
-ARGUMENT::callback
-
-A function that is called when analysis is completed. It takes the result (an event) as argument.
-
-ARGUMENT::maxDataPoints
-
-A limit on the number of points added to the data.
-
-
-METHOD::analyzeAll
-
-Analyze all files given, returning a link::Classes/List:: of link::Classes/Event::s.
-
-ARGUMENT::paths
-
-A list of paths
-
-
 EXAMPLES::
 CODE::
+s.boot;
+
 // record a sound into a buffer
 b = Buffer.alloc(s, s.sampleRate * 3, 1, bufnum: 1000);
 
@@ -165,11 +79,11 @@ a.add(\FFTCrest, \direct, {|sig| var fft = FFT(LocalBuf(2048, 1), sig); FFT(Loca
 
 // analyze the sound
 
-x = a.analyzeFile("~/soundFileAnalysisExample.aiff".standardizePath, duration: 3, maxDataPoints: 3000);
+x = a.analyzeFile("~/soundFileAnalysisExample.aiff".standardizePath, duration: 3, maxDataPoints: 3000, callback: "done!");
 
 // look at the data
-x[\Centroid].postcs;
-x[\Crest].postcs;
+x[\centroid].postcs;
+x[\crest].postcs;
 x[\FFTCrest].postcs;
 
 
