@@ -12,18 +12,12 @@ METHOD::verbose
 
 Post what's going on. (default == False)
 
-ARGUMENT::Boolean
-
-gets True or False  (a link::Classes/Boolean::)
-
-
-
-INSTANCEMETHODS::
 
 METHOD::new
 
 Return a new link::Classes/SoundFileAnalysis:: Object
 
+INSTANCEMETHODS::
 
 METHOD::add
 
