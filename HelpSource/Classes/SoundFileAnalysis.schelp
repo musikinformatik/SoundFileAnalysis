@@ -24,7 +24,7 @@ One of currently three types:
 
 definitionlist::
 ## trig
-|| Write a value on receiveing a trigger
+|| Write one or more values on receiveing a trigger
 
 ## direct
 || Write a value on each frame
