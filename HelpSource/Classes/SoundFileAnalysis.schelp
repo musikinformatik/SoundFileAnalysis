@@ -12,10 +12,30 @@ METHOD::verbose
 
 Post what's going on. (default == False)
 
-
 METHOD::new
 
 Return a new link::Classes/SoundFileAnalysis:: Object
+
+METHOD::initAnalysisMethods
+
+Return a function with a dictionary of basic analasys methods:
+
+METHOD::basicAnalysisMethods
+A dictionary with the tree keys: \trig, \average, \direct
+
+definitionlist::
+## trig
+|| Write a value on receiveing a trigger
+
+## average
+|| Average all values in the file
+
+
+## direct
+|| Write a value on each frame
+
+::
+
 
 INSTANCEMETHODS::
 
