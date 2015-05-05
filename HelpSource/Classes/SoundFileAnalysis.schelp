@@ -78,7 +78,7 @@ a.add(\test3, \direct, { |sig|
 );
 
 // analyze single files
-x = a.analyzeFile(Platform.resourceDir +/+ "sounds/a11wlk01.wav", callback: { "analysis completed".postln });
+x = a.analyzeFile(Platform.resourceDir +/+ "sounds/a11wlk01.wav", callback: { "analysis completed".postln }, maxDataPoints: 6000);
 x.postcs;"";
 x[\test];
 x[\test2].cs;
