@@ -6,6 +6,10 @@ categories::Non-Realtime
 DESCRIPTION::
 
 
+
+CLASSMETHODS::
+
+
 METHOD::verbose
 
 Post what's going on (default: false).
