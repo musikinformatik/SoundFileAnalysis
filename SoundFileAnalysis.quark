@@ -1,0 +1,8 @@
+(
+	\name: 			"SoundFileAnalysis",
+	\summary:		"A simple system for non realtime soundfile analysis",
+	\author: 		"Julian Rohrhuber, Florian Zeeh, Raffael Seyfried und Hans W. Koch",
+	\organization: 	"Institute for Music and Media Duesseldorf",
+	\country: 		"Germany",
+	\since: 		"2014"
+)
