@@ -74,7 +74,7 @@ a.add(\centroid, \trig, {|sig|
 	[Impulse.kr(5), x]
 });
 a.add(\crest, \average, {|sig, soundfile| Crest.kr(sig, soundfile.numFrames) });
-a.add(\FFTCrest, \direct, {|sig| var fft = FFT(LocalBuf(2048, 1), sig); FFT(LocalBuf(2048, 1), sig); FFTCrest.kr(fft, 200, 10000) });
+a.add(\amplitude, \direct, {|sig| Amplitude.kr(sig); });
 )
 
 // analyze the sound
@@ -84,7 +84,7 @@ x = a.analyzeFile("~/soundFileAnalysisExample.aiff".standardizePath, duration: 3
 // look at the data
 x[\centroid].postcs;
 x[\crest].postcs;
-x[\FFTCrest].postcs;
+x[\amplitude].postcs;
 
 
 // BONUS: how to tweak the analysis methods
