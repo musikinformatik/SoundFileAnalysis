@@ -129,6 +129,61 @@ A list of paths
 
 
 EXAMPLES::
+CODE::
+// record a sound into a buffer
+b = Buffer.alloc(s, s.sampleRate * 3, 1, bufnum: 1000);
+
+(
+SynthDef(\record, {|out|
+	var in, rec;
+	in = RLPF.ar(LFSaw.ar(300 * SinOsc.kr(0.4).range(0.5, 5)), Line.kr(12000, 100, 3));
+	rec = RecordBuf.ar(in, b.bufnum, loop: 0, doneAction: 2);
+	Out.ar(out, in);
+};
+).add
+)
+
+Synth(\record);
+
+// write the file to analyze later
+b.write("~/soundFileAnalysisExample.aiff".standardizePath,"aiff", "int24");
+
+b.play; // maybe check if something is there
+
+// initialize analysis
+(
+a = SoundFileAnalysis.new;
+
+a.add(\centroid, \trig, {|sig|
+	var fft = FFT(LocalBuf(2048, 1), sig);
+	var x = SpecCentroid.kr(fft);
+	[Impulse.kr(5), x]
+});
+a.add(\crest, \average, {|sig, soundfile| Crest.kr(sig, soundfile.numFrames) });
+a.add(\FFTCrest, \direct, {|sig| var fft = FFT(LocalBuf(2048, 1), sig); FFT(LocalBuf(2048, 1), sig); FFTCrest.kr(fft, 200, 10000) });
+)
+
+// analyze the sound
+
+x = a.analyzeFile("~/soundFileAnalysisExample.aiff".standardizePath, duration: 3, maxDataPoints: 3000);
+
+// look at the data
+x[\Centroid].postcs;
+x[\Crest].postcs;
+x[\FFTCrest].postcs;
+
+
+// BONUS: how to tweak the analysis methods
+(
+Ndef(\centroid, {
+	var sig = RLPF.ar( LFSaw.ar(300 * SinOsc.kr(0.4).range(0.5, 5)), Line.kr(12000, 300, 3));
+	var fft = FFT(LocalBuf(2048, 1), sig);
+	var x = SpecCentroid.kr(fft);
+	x.poll(10);
+	sig;
+}).play;
+)
+::
 
 
 SECTION::Tests
