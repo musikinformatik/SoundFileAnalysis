@@ -20,10 +20,11 @@ Return a new link::Classes/SoundFileAnalysis:: Object
 
 METHOD::initAnalysisMethods
 
-Return a function with a dictionary of basic analasys methods:
+Return a function with a dictionary of basic analysis methods (trig, average, direct).
 
 METHOD::basicAnalysisMethods
-A dictionary with the tree keys: \trig, \average, \direct
+A dictionary with the tree keys: \trig, \average, \direct.
+This dictionary (basicAnalysisMethods) can be extended.
 
 definitionlist::
 ## trig
@@ -192,6 +193,104 @@ Ndef(\centroid, {
 }).play;
 )
 ::
+
+SECTION::Live audio analysis
+CODE::
+
+
+
+(
+
+// if needed, adjust analysis
+a = SoundFileAnalysis.new;
+a.add(\onsets, \trig, {|sig|
+	var fft = FFT(LocalBuf(2048, 1), sig);
+	var x = Onsets.kr(fft);
+	[x, Sweep.kr(1, 1)]
+});
+)
+
+~analyzed = ();
+
+// record into a 3 second live buffer
+~liveBuffer = Buffer.alloc(s, s.sampleRate * ~dur, 3);
+Ndef(\rec, { RecordBuf.ar(SoundIn.ar([0, 1]), ~liveBuffer, loop:1) });
+
+
+
+(
+
+SynthDef(\playchunk, { |out, bufnum, sustain = 1, amp = 0.1, rate = 1, onset = 0|
+	var startPos = onset * BufSampleRate.kr(bufnum);
+	var env = EnvGen.kr(Env.linen(0.001, sustain / rate, 0.02), doneAction:2);
+	Out.ar(out,
+		PlayBuf.ar(2, bufnum, rate, startPos:startPos)
+	)
+}).add;
+
+~analyze = { |name = 0|
+	var path;
+	fork {
+		path = "~/analysis_%.aiff".format(name).standardizePath;
+		~liveBuffer.write(path);
+		s.sync;
+		x = a.analyzeFile(path, callback: { "analysed buffer, saved in index %".format(name).postln;});
+		x[\buffer] = Buffer.read(s, path);
+		~analyzed[name] = x;
+
+	};
+};
+
+~playBack = { |name, func|
+	var analysis = ~analyzed[name], buffer, onsets, durations, events;
+	if(analysis.isNil) { "analysis file not found".postln } {
+		buffer = analysis[\buffer];
+		onsets = analysis[\onsets];
+		durations = onsets.differentiate.drop(1);
+		durations = durations.add(buffer.duration - onsets.last);
+		events = onsets.collect { |time, i|
+			(
+				onset:time,
+				bufnum: buffer,
+				dur: durations[i],
+				sustain: durations[i],
+				rate: 1,
+				instrument:\playchunk
+			)
+		};
+	};
+
+
+};
+~freeAll = {
+	~analyzed.do { |x| x[\buffer].free };
+};
+~writeToFiles = { |name, path|
+	~playBack.value(name).do { |x, i|
+		var buffer = x[\bufnum];
+		var filepath = format("%_%_%.aiff", path, name, i).standardizePath;
+		buffer.write(filepath, numFrames:x[\sustain] * buffer.sampleRate, startFrame:x[\onset] * buffer.sampleRate)
+	}
+};
+)
+
+~analyzed[0].buffer.play; // something there?
+~analyzed[0][\onsets]; // post onsets
+~events = ~playBack.(0); // generate events
+~events.choose.play; // play a random one
+
+
+// play back as a pattern
+Pbindf(Pseq(~events.(0), inf), \rate, 1).play;
+Pbindf(Pseq(~events.(0), inf), \rate, 2, \dur, 1.4).play;
+
+
+// if you need, write to files
+~writeToFiles.(0, "~/test");
+::
+
+
+
 
 
 SECTION::Tests
