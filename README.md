@@ -8,7 +8,7 @@ a simple example:
 var analysis, path;
 analysis = SoundFileAnalysis.new;
 // add some custom sound analysis method
-analysis.add(\amplitude, \trig, { |sig|
+analysis.add(\my_trig_amps, \trig, { |sig|
 	var amp = Amplitude.kr(sig);
 	var trig = amp > 0.6; // amp exceeds threshold
 	var avg = TrigAvg.kr(amp, trig);
@@ -19,5 +19,5 @@ path = Platform.resourceDir +/+ "sounds/a11wlk01.wav";
 x = analysis.analyzeFile(path, callback: { "analysis completed".postln; });
 )
 
-x[\amplitude].plot; // plot the average amplitudes
+x[\my_trig_amps].plot; // plot the average amplitudes
 ````
