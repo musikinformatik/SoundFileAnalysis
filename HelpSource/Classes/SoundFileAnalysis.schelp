@@ -4,6 +4,26 @@ categories::Non-Realtime
 
 
 DESCRIPTION::
+This class provides a relatively simple way to do custom non realtime signal analysis. Using live recorded buffers, it can do the processing in the background while the recording continues. Its input is a soundfile, its output is a dataset formatted as an event.
+
+A simple example:
+
+CODE::
+(
+a = SoundFileAnalysis.new;
+// add some custom sound analysis method
+a.add(\amplitude, \trig, { |sig|
+	var amp = Amplitude.kr(sig);
+	var trig = amp > 0.6; // amp exceeds threshold
+	var avg = TrigAvg.kr(amp, trig);
+	[trig, avg] // records always the average before the peak
+});
+
+x = a.analyzeFile(Platform.resourceDir +/+ "sounds/a11wlk01.wav", callback: { "analysis completed".postln; });
+)
+
+x[\amplitude].plot; // plot the average amplitudes
+::
 
 
 
