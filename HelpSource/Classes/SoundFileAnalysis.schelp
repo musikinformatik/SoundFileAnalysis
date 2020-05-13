@@ -6,6 +6,8 @@ categories::Non-Realtime, Files
 DESCRIPTION::
 This class provides a relatively simple way to do custom non realtime signal analysis. Using live recorded buffers, it can do the processing in the background while the recording continues. Its input is a soundfile, its output is a dataset formatted as an event.
 
+(be aware that by default sound files are only analysed for n*serverOptions.blockSize<SoundFile.duration please look at the trimDuration argument for details.)
+
 A simple example:
 
 CODE::
@@ -141,6 +143,21 @@ A function that is called when analysis is completed. It takes the result (an ev
 ARGUMENT::maxDataPoints
 
 A limit on the number of points added to the data.
+
+ARGUMENT::trimDuration
+
+When code::trimDuration:: is unspecified, the duration is no longer than the length of the file. Because only full blocks are written to the buffer, usually the last samples of a file are not analysed. Setting code::trimDuration:: allows you to specify what is supposed to happen with the last block or leaves the duration be as specified in the argument.
+
+\roundDown analyses the file until the full last block.
+
+\roundUp analyses the file and adds silence to fill the last block.
+
+nil leaves the duration as given in the argument.
+
+ARGUMENT::serverOptions
+
+link::Classes/ServerOptions:: for the NRT server. A way to deal with the last half block problem is to set the blockSize to 1.
+
 
 
 METHOD::analyzeAll
