@@ -49,18 +49,36 @@ SoundFileAnalysis {
 		^result
 	}
 
-	analyzeFile { |path, start = (0), duration, which, callback, maxDataPoints = (1000)|
+	analyzeFile { |path, start = (0), duration, which, callback, maxDataPoints = (1000),trimDuration=\roundDown, serverOptions|
 		var result = ();
 		if(File.exists(path).not) { "\nFile not found: %\n".format(path).warn; ^this };
 		which = (which ?? { analysisMethods.keys.as(Array).sort }).asArray;
 		fork {
 			var resultpaths, oscpath, score;
-			var analysisDuration, soundFile, cond;
+			var analysisDuration, soundFile, options, cond;
 			var server = Server(\dummy);
 
 			// get duration and numChannels from soundFile
 			soundFile = SoundFile.openRead(path);
-			analysisDuration = min(duration ?? { soundFile.duration - start }, soundFile.duration);
+
+			if(serverOptions.notNil){
+				options = serverOptions.copy;
+			}{
+				options = ServerOptions()
+				.verbosity_(-1)
+				.memSize_(8192 * 256) // REALLY NEEDED?
+			};
+			if(options.sampleRate.isNil){ options.sampleRate_(soundFile.sampleRate) };
+
+			if(trimDuration.isNil){
+				analysisDuration = duration;
+			}{
+				analysisDuration = min(duration ?? { soundFile.duration - start }, soundFile.duration);
+			};
+			if(trimDuration == \roundUp){
+				analysisDuration=analysisDuration.roundUp(options.blockSize / soundFile.sampleRate);
+			};
+
 			soundFile.close;
 
 			// first we build a score
@@ -76,11 +94,7 @@ SoundFileAnalysis {
 			score.recordNRT(oscpath, "/dev/null",
 				//path,
 				sampleRate: soundFile.sampleRate,
-				options: ServerOptions.new
-				.verbosity_(-1)
-				//.memSize_(8192 * which.size) // REALLY NEEDED?
-				.memSize_(8192 * 256) // REALLY NEEDED?
-				.sampleRate_(soundFile.sampleRate),
+				options: options,
 				action: { cond.unhang }  // this re-awakens the process after NRT is finished
 			);
 
@@ -288,5 +302,3 @@ SoundFileAnalysis {
 
 
 }
-
-
