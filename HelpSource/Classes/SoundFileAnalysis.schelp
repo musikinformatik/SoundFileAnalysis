@@ -146,7 +146,7 @@ A limit on the number of points added to the data.
 
 ARGUMENT::trimDuration
 
-When code::trimDuration:: is unspecified, the duration is no longer than the length of the file. Because only full blocks are written to the buffer, usually the last samples of a file are not analysed. Setting code::trimDuration:: allows you to specify what is supposed to happen with the last block or leaves the duration be as specified in the argument.
+When code::trimDuration:: is unspecified, the duration is no longer than the length of the file. Because only full blocks are written to the buffer, usually the last samples of a file are not analysed. Setting code::trimDuration:: allows you to specify what is supposed to happen with the last block or leaves the duration be as specified in the argument. (see example below)
 
 \roundDown analyses the file until the full last block.
 
@@ -156,7 +156,7 @@ nil leaves the duration as given in the argument.
 
 ARGUMENT::serverOptions
 
-link::Classes/ServerOptions:: for the NRT server. A way to deal with the last half block problem is to set the blockSize to 1.
+link::Classes/ServerOptions:: for the NRT server. A way to deal with the last half block problem is to set the blockSize to 1. (see example below)
 
 
 
