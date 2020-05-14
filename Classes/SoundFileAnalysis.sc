@@ -61,11 +61,14 @@ SoundFileAnalysis {
 			// get duration and numChannels from soundFile
 			soundFile = SoundFile.openRead(path);
 
-			options= (serverOptions ?? {ServerOptions()})
+			if(serverOptions.notNil){
+				options = serverOptions.copy;
+			}{
+				options = ServerOptions()
 				.verbosity_(-1)
 				.memSize_(8192 * 256) // REALLY NEEDED?
-				.sampleRate_(soundFile.sampleRate);
-			);
+			};
+			if(options.sampleRate.isNil){ options.sampleRate_(soundFile.sampleRate) };
 
 			if(trimDuration.isNil){
 				analysisDuration = duration;
@@ -299,5 +302,3 @@ SoundFileAnalysis {
 
 
 }
-
-

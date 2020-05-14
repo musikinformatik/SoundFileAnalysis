@@ -383,3 +383,54 @@ x[\onsets];
 
 
 ::
+
+
+Example of three ways about how to deal with the last block problem.
+
+In the following example the number of zerocrossing in a file is written in the last block of the calculation.
+
+code::
+(
+p = Platform.resourceDir +/+ "sounds/a11wlk01.wav";
+f = SoundFile.openRead(p);
+n = f.numFrames;
+f.close;
+a=SoundFileAnalysis();
+a.add(\pn, \trig, { |sig|
+	var zc = (sig > 0) & (Delay1.ar(sig) <= 0);
+	var count = PulseCount.ar(zc);
+	var trig = Phasor.ar(0,1,0,n) - n + 2;
+	[trig, count]});
+)
+::
+
+With the default values the result will be empty:
+
+code::
+x=a.analyzeFile(p, callback: {x.pn.postln});
+::
+
+Only if the last block is included by setting the trimDuration to \roundUp the result is printed:
+
+code::
+x=a.analyzeFile(p, callback: {x.pn.postln}, trimDuration: \roundUp);
+::
+
+It is not enough to provide a duration that is the amount of samples longer to fill the last block. because by default the duration is trimmed to the sample length:
+
+code::
+x=a.analyzeFile(p, duration: (n/44100).roundUp(64 / 44100), callback: {x.pn.postln});
+::
+
+One can freely set the duration if one set trimDuration to nil:
+
+code::
+x=a.analyzeFile(p, duration: (n/44100).roundUp(64 / 44100), callback: {x.pn.postln}, trimDuration: nil);
+::
+
+
+Or one can use a server with the blockSize of 1. But this is less efficient.
+
+code::
+x=a.analyzeFile(p, callback: {x.pn.postln}, serverOptions: ServerOptions().blockSize_(1).verbosity_(-1));
+::
