@@ -238,27 +238,17 @@ CODE::
 
 (
 
-a = SoundFileAnalysis.new;
+~sfa = SoundFileAnalysis.new;
 
-a.add(\onsets, \trig, {|sig|
+~sfa.add(\onsets, \trig, {|sig|
 	var fft = FFT(LocalBuf(2048, 1), sig);
 	var x = Onsets.kr(fft); // if needed, adjust analysis
 	var currentTime = Sweep.kr(1, 1); // time in seconds
 	[x, currentTime]
 });
 
-)
-
 ~analyzed = (); // a dictionary to keep several analysis data sets
-
-// record into a 3 second live buffer
-~liveBuffer = Buffer.alloc(s, s.sampleRate * ~dur, 3);
-Ndef(\rec, { RecordBuf.ar(SoundIn.ar([0, 1]), ~liveBuffer, loop:1) });
-
-// hit cmd-period to stop recording, or Ndef(\rec).free;
-// for restarting the recording, call Ndef(\rec).send;
-
-(
+~dur = 4;
 
 SynthDef(\playchunk, { |out, bufnum, sustain = 1, amp = 0.1, rate = 1, onset = 0|
 	var startPos = onset * BufSampleRate.kr(bufnum); // convert from seconds to frames
@@ -268,13 +258,15 @@ SynthDef(\playchunk, { |out, bufnum, sustain = 1, amp = 0.1, rate = 1, onset = 0
 	)
 }).add;
 
+~liveBuffer = Buffer.alloc(s, s.sampleRate * ~dur, 2);
+
 ~analyze = { |name = 0|
 	var path;
 	fork {
 		path = "~/analysis_%.aiff".format(name).standardizePath;
 		~liveBuffer.write(path); // write soundfile as a copy
 		s.sync;
-		x = a.analyzeFile(path, callback: { "analysed buffer, saved in index %".format(name).postln;});
+		x = ~sfa.analyzeFile(path, callback: { "analysed buffer, saved in index %".format(name).postln;});
 		x[\buffer] = Buffer.read(s, path); // read soundfile
 		~analyzed[name] = x;
 
@@ -314,15 +306,28 @@ SynthDef(\playchunk, { |out, bufnum, sustain = 1, amp = 0.1, rate = 1, onset = 0
 };
 )
 
+
+
+// record into a 4 second live buffer
+Ndef(\rec, { RecordBuf.ar(SoundIn.ar([0, 1]), ~liveBuffer, loop:1) });
+
+// hit cmd-period to stop recording, or Ndef(\rec).free;
+// for restarting the recording, call Ndef(\rec).send;
+
+
+
+~analyze.value;
+
 ~analyzed[0].buffer.play; // something there?
 ~analyzed[0][\onsets]; // post onsets
 ~events = ~makeEvents.(0); // generate events
+~events.size; // how many?
 ~events.choose.play; // play a random one
 
 
 // play back as a pattern
-Pbindf(Pseq(~events.(0), inf), \rate, 1).play;
-Pbindf(Pseq(~events.(0), inf), \rate, 2, \dur, 1.4).play;
+Pbindf(Pseq(~events.copy.scramble, inf), \rate, 1).play;
+Pbindf(Pseq(~events.copy.scramble, inf), \rate, 2, \dur, 1.4).play;
 
 
 // if you need, write to files
